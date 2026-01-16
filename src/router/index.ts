@@ -1,7 +1,10 @@
-import LoginView from '@/views/auth/LoginView.vue'
-import RegisterView from '@/views/auth/RegisterView.vue'
-import IndexView from '@/views/user/IndexView.vue'
+import IndexView from '@/views/home/IndexView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import authRoutes from './auth.routes'
+import userRoutes from './user.routes'
+import adminRoutes from './admin.routes'
+import { useAuthStore } from '@/stores/auth'
+import ForbiddenView from '@/views/errors/ForbiddenView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,27 +15,22 @@ const router = createRouter({
       component: IndexView,
       meta: {
         title: 'Home',
+
         description: 'Manage and track your medicine expiration dates',
       },
     },
     {
-      path: '/login',
-      name: 'login',
-      component: LoginView,
+      path: '/forbidden',
+      name: 'forbidden',
+      component: ForbiddenView,
       meta: {
-        title: 'Login',
-        description: 'Login to your Expiry Date Medicine account',
+        title: 'Forbidden',
+        description: 'Access Denied',
       },
     },
-    {
-      path: '/register',
-      name: 'register',
-      component: RegisterView,
-      meta: {
-        title: 'Register',
-        description: 'Create a new account to start tracking medicines',
-      },
-    },
+    ...authRoutes,
+    ...userRoutes,
+    ...adminRoutes,
   ],
 })
 
@@ -54,6 +52,38 @@ router.afterEach((to) => {
   }
 
   metaDescription.content = description as string
+})
+
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+
+  /**
+   * 🔐 Route butuh login
+   */
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    return {
+      name: 'login',
+      query: { redirect: to.fullPath },
+    }
+  }
+
+  /**
+   * 🛡️ Route punya role tertentu
+   */
+  if (to.meta.role && authStore.user?.role !== to.meta.role) {
+    return { name: 'forbidden' }
+  }
+
+  /**
+   * 🚫 Sudah login tapi akses halaman auth (login/register)
+   */
+  if (to.meta.guestOnly && authStore.isAuthenticated) {
+    if (authStore.user?.role === 'admin') {
+      return { name: 'admin.dashboard' }
+    }
+
+    return { name: 'user.dashboard' }
+  }
 })
 
 export default router

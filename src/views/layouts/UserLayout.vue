@@ -8,7 +8,7 @@ import NavbarComponent from '@/components/NavbarComponent.vue'
     <NavbarComponent />
   </header>
 
-  <main class="px-4 mx-auto md:px-6 lg:px-8">
+  <main class="">
     <slot />
   </main>
 

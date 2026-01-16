@@ -1,6 +1,46 @@
 <script setup lang="ts">
+import { register, type RegisterPayload } from '@/services/api/auth/auth.api'
 import UserLayout from '../layouts/UserLayout.vue'
 import { RouterLink } from 'vue-router'
+import { reactive, ref } from 'vue'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import { Loader } from 'lucide-vue-next'
+const form = reactive<RegisterPayload>({
+  email: '',
+  username: '',
+  password: '',
+  telepon: '',
+})
+const buttonLoading = ref<boolean>(false)
+const error = ref<string>('')
+const registerUser = async () => {
+  buttonLoading.value = true
+  error.value = ''
+  try {
+    const { data } = await register(form)
+
+    if (data.success) {
+      Swal.fire({
+        title: 'Good job!',
+        text: `${data.success}`,
+        icon: 'success',
+      })
+
+      form.username = ''
+      form.email = ''
+      form.telepon = ''
+      form.password = ''
+    }
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      console.log(err.response?.data)
+      error.value = err.response?.data.errors
+    }
+  } finally {
+    buttonLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -16,13 +56,18 @@ import { RouterLink } from 'vue-router'
           </div>
 
           <!-- Form -->
-          <form class="space-y-4">
+          <form class="space-y-4" @submit.prevent="registerUser">
             <!-- Username -->
             <div>
               <label class="label">
                 <span class="label-text">Username</span>
               </label>
-              <input type="text" class="input input-bordered w-full" placeholder="yourusername" />
+              <input
+                type="text"
+                v-model="form.username"
+                class="input input-bordered w-full"
+                placeholder="yourusername"
+              />
             </div>
 
             <!-- Email -->
@@ -32,6 +77,7 @@ import { RouterLink } from 'vue-router'
               </label>
               <input
                 type="email"
+                v-model="form.email"
                 class="input input-bordered w-full"
                 placeholder="you@example.com"
               />
@@ -44,6 +90,7 @@ import { RouterLink } from 'vue-router'
               </label>
               <input
                 type="tel"
+                v-model="form.telepon"
                 class="input input-bordered w-full"
                 placeholder="+62 812 3456 7890"
               />
@@ -54,16 +101,55 @@ import { RouterLink } from 'vue-router'
               <label class="label">
                 <span class="label-text">Password</span>
               </label>
-              <input type="password" class="input input-bordered w-full" placeholder="••••••••" />
+              <input
+                type="password"
+                v-model="form.password"
+                class="input input-bordered w-full"
+                placeholder="••••••••"
+              />
               <label class="label">
                 <span class="label-text-alt text-base-content/60 text-xs">
-                  Minimum 8 characters
+                  Minimum 7 characters
                 </span>
               </label>
             </div>
 
+            <!-- showing error -->
+            <div v-if="error">
+              <div role="alert" class="alert alert-error">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <ul class="list-disc text-sm">
+                  <li class="text-sm" v-for="(err, i) in error" :key="i">
+                    {{ err[0] }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+
             <!-- Button -->
-            <button class="btn bg-black text-white w-full mt-4">Create Account</button>
+            <button
+              :disabled="buttonLoading"
+              type="submit"
+              class="disabled:cursor-not-allowed btn bg-black text-white w-full mt-4"
+            >
+              <span v-if="!buttonLoading"> Create Account </span>
+              <div v-else class="flex justify-items-center gap-x-2 items-center">
+                <Loader :size="14" class="animate-spin transition-all" />
+                <span>Loading</span>
+              </div>
+            </button>
           </form>
 
           <!-- Footer -->

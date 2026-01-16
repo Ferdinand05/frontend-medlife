@@ -1,5 +1,41 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import UserLayout from '../layouts/UserLayout.vue'
+import { login } from '@/services/api/auth/auth.api'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
+import { jwtDecode } from 'jwt-decode'
+import type { IUser } from '@/types/user.type'
+import { Loader } from 'lucide-vue-next'
+import router from '@/router'
+const email = ref<string>('')
+const password = ref<string>('')
+const authStore = useAuthStore()
+//
+
+const buttonLoading = ref<boolean>(false)
+const error = ref<string>('')
+const submit = async () => {
+  buttonLoading.value = true
+  error.value = ''
+  try {
+    const { data } = await login(email.value, password.value)
+
+    const payload: IUser = jwtDecode(data.token)
+    console.log(payload)
+
+    authStore.setAuth(payload, data.token)
+
+    router.push({ name: 'home' })
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      console.log(err.response?.data)
+      error.value = err.response?.data.error
+    }
+  } finally {
+    buttonLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -15,13 +51,14 @@ import UserLayout from '../layouts/UserLayout.vue'
           </div>
 
           <!-- Form -->
-          <form class="space-y-4">
+          <form class="space-y-4" @submit.prevent="submit">
             <div>
               <label class="label">
                 <span class="label-text">Email</span>
               </label>
               <input
                 type="email"
+                v-model="email"
                 required="true"
                 class="input input-bordered w-full"
                 placeholder="you@example.com"
@@ -33,6 +70,7 @@ import UserLayout from '../layouts/UserLayout.vue'
                 <span class="label-text">Password</span>
               </label>
               <input
+                v-model="password"
                 type="password"
                 required="true"
                 class="input input-bordered w-full"
@@ -49,9 +87,36 @@ import UserLayout from '../layouts/UserLayout.vue'
 
               <a href="#" class="link link-primary"> Forgot password? </a>
             </div>
-
+            <div v-if="error">
+              <div role="alert" class="alert alert-error">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>Error! {{ error }}</span>
+              </div>
+            </div>
             <!-- Button -->
-            <button class="btn bg-black text-white w-full mt-4">Login</button>
+            <button
+              type="submit"
+              :disabled="buttonLoading"
+              class="btn bg-black disabled:cursor-not-allowed text-white w-full mt-4"
+            >
+              <span v-if="!buttonLoading"> Login </span>
+              <div v-else class="flex justify-items-center gap-x-2 items-center">
+                <Loader :size="14" class="animate-spin transition-all" />
+                <span>Loading</span>
+              </div>
+            </button>
           </form>
 
           <!-- Footer -->

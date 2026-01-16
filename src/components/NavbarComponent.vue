@@ -1,5 +1,9 @@
 <script lang="ts" setup>
+import { useAuthStore } from '@/stores/auth'
+import { ChevronDown } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+
+const authStore = useAuthStore()
 </script>
 
 <template>
@@ -31,7 +35,7 @@ import { RouterLink } from 'vue-router'
           <li><a>How it works</a></li>
         </ul>
       </div>
-      <a class="btn btn-ghost text-xl text-blue-500">MedLife</a>
+      <a href="/" class="btn btn-ghost text-xl font-bold text-green-400 tracking-wide">MEDLIFE</a>
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
@@ -41,7 +45,25 @@ import { RouterLink } from 'vue-router'
       </ul>
     </div>
     <div class="navbar-end">
-      <RouterLink to="/login" class="text-sm font-semibold">Login</RouterLink>
+      <RouterLink to="/login" class="text-sm font-semibold" v-if="!authStore.token"
+        >Login</RouterLink
+      >
+      <div class="dropdown dropdown-end border-0" v-else>
+        <div tabindex="0" role="button" class="btn m-1">
+          {{ authStore.user?.username }} <ChevronDown :size="15" />
+        </div>
+        <ul
+          tabindex="-1"
+          class="dropdown-content menu bg-gray-100 rounded-box z-1 w-52 p-2 shadow-sm"
+        >
+          <li><RouterLink :to="{ name: 'user.dashboard' }">Dashboard</RouterLink></li>
+          <li v-if="authStore.user?.role == 'admin'">
+            <RouterLink :to="{ name: 'admin.dashboard' }">Dashboard Admin</RouterLink>
+          </li>
+          <li><RouterLink :to="{ name: 'user.settings' }">Settings</RouterLink></li>
+          <li><a class="bg-red-100" @click="authStore.logout">Logout</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>

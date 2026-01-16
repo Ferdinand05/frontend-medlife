@@ -1,6 +1,14 @@
 <script lang="ts" setup>
 import { RouterLink } from 'vue-router'
 import UserLayout from '../layouts/UserLayout.vue'
+import { onBeforeMount } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+onBeforeMount(() => {
+  const authStore = useAuthStore()
+
+  authStore.checkToken()
+})
 </script>
 
 <template>
@@ -24,7 +32,7 @@ import UserLayout from '../layouts/UserLayout.vue'
     </section>
 
     <!-- About -->
-    <section class="py-16 md:py-24">
+    <section class="py-16 md:py-24 bg-gray-100">
       <div class="container mx-auto px-6 max-w-6xl">
         <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">About</h2>
 
@@ -69,7 +77,7 @@ import UserLayout from '../layouts/UserLayout.vue'
     </section>
 
     <!-- How it works -->
-    <section class="py-14 md:py-20">
+    <section class="py-14 md:py-20 bg-gray-100">
       <h2 class="text-2xl md:text-3xl font-bold mb-10 text-center">How It Works</h2>
 
       <div class="grid gap-8 md:grid-cols-3">
