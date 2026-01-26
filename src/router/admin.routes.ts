@@ -13,7 +13,7 @@ const adminRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'Admin Dashboard',
       requireAuth: true,
-      role: 'admin',
+      roles: ['admin'],
     },
   },
   {
@@ -23,7 +23,7 @@ const adminRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'List Users',
       requireAuth: true,
-      role: 'admin',
+      roles: ['admin'],
     },
   },
   {
@@ -33,7 +33,7 @@ const adminRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'List Category',
       requireAuth: true,
-      role: 'admin',
+      roles: ['admin'],
     },
   },
   {
@@ -43,7 +43,7 @@ const adminRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'List Medicines',
       requireAuth: true,
-      role: 'admin',
+      roles: ['admin'],
     },
   },
   {
@@ -53,7 +53,7 @@ const adminRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'Admin Setting',
       requireAuth: true,
-      role: 'admin',
+      roles: ['admin'],
     },
   },
 ]

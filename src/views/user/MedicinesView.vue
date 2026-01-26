@@ -306,7 +306,6 @@ function store() {
       createForm.category = ''
       createForm.name = ''
       createForm.quantity = null
-      createForm.category = ''
       createForm.note = ''
       createForm.expireDate = ''
     })

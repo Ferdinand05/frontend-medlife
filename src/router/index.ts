@@ -70,7 +70,8 @@ router.beforeEach((to) => {
   /**
    * 🛡️ Route punya role tertentu
    */
-  if (to.meta.role && authStore.user?.role !== to.meta.role) {
+  const userRole = authStore.user?.role as string
+  if (to.meta.roles && !to.meta.roles.includes(userRole)) {
     return { name: 'forbidden' }
   }
 

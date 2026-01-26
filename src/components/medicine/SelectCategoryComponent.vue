@@ -39,7 +39,6 @@ function onChange(event: Event) {
       :value="props.modelValue"
       placeholder="Category"
     >
-      <option disabled selected>Category</option>
       <option v-for="(c, i) in categories" :key="i" :value="c._id">{{ c.name }}</option>
     </select>
   </fieldset>

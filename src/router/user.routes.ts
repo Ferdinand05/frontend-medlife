@@ -11,7 +11,7 @@ const userRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'Dashboard User',
       requireAuth: true,
-      role: 'user',
+      roles: ['user', 'admin'],
     },
   },
   {
@@ -21,7 +21,7 @@ const userRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'User Medicines',
       requireAuth: true,
-      role: 'user',
+      roles: ['user', 'admin'],
     },
   },
   {
@@ -31,7 +31,7 @@ const userRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'User Settings',
       requireAuth: true,
-      role: 'user',
+      roles: ['user', 'admin'],
     },
   },
 ]

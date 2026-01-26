@@ -10,7 +10,7 @@ export interface ICategory {
 export interface IMedicine {
   _id: string
   name: string
-  quantity: number
+  quantity: number | null
   unit: string
   expireDate: string
   reminderSent?: boolean

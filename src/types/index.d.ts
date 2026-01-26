@@ -13,6 +13,7 @@ export interface errorForm {
   name?: string | string[]
   note?: string | string[]
   category?: string | string[]
+  user?: string
 }
 
 export interface errorFormSetting {
