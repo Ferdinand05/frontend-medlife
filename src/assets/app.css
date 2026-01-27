@@ -7,3 +7,12 @@
 @theme {
   --font-inter: 'Inter', sans-serif;
 }
+
+@layer base {
+  body {
+    font-family: var(--font-inter);
+  }
+}
+.swal2-container {
+  z-index: 9999 !important;
+}
