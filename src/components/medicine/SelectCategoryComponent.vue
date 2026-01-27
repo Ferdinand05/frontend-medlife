@@ -34,6 +34,7 @@ function onChange(event: Event) {
   <fieldset class="fieldset w-full">
     <legend class="fieldset-legend">Category</legend>
     <select
+      v-if="categories.length > 0"
       class="select w-full"
       @change="onChange"
       :value="props.modelValue"
@@ -41,5 +42,6 @@ function onChange(event: Event) {
     >
       <option v-for="(c, i) in categories" :key="i" :value="c._id">{{ c.name }}</option>
     </select>
+    <div v-else class="text-center p-4">Loading categories...</div>
   </fieldset>
 </template>
