@@ -22,3 +22,11 @@ export interface errorFormSetting {
   oldPassword?: string | string[]
   newPassword?: string | string[]
 }
+
+export interface errorFormType {
+  username?: string[]
+  email?: string[]
+  telepon?: string[]
+  role?: string[]
+  password?: string[]
+}
