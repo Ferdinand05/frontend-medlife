@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import DashboardAdminLayout from '../layouts/DashboardAdminLayout.vue'
 import { getCategories } from '@/services/api/user/category.api'
 import type { ICategory } from '@/types/medicine'
 import {
   createColumnHelper,
-  FlexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -14,7 +13,12 @@ import {
   type SortingState,
 } from '@tanstack/vue-table'
 import { h } from 'vue'
-import { SortAsc, SortDesc } from 'lucide-vue-next'
+import { createCategory, deleteCategory, updateCategory } from '@/services/api/admin/category.api'
+import Swal from 'sweetalert2'
+import AlertComponent from '@/components/AlertComponent.vue'
+import HeaderDashboard from '@/components/HeaderDashboard.vue'
+import TableData from '@/components/table/TableData.vue'
+import ModalDialog from '@/components/ModalDialog.vue'
 
 const categories = ref<ICategory[]>([])
 function getData() {
@@ -24,6 +28,7 @@ function getData() {
     })
     .catch((res) => {
       console.log(res.response)
+      alert('Failed to fetch categories' + res.response)
     })
 }
 
@@ -82,7 +87,7 @@ const columns = [
 const pageSizes = [10, 20, 30, 40, 50]
 const globalFilter = ref('')
 const sorting = ref<SortingState>([])
-const table = useVueTable({
+const table = useVueTable<ICategory>({
   get data() {
     return categories.value
   },
@@ -109,36 +114,106 @@ const table = useVueTable({
   getPaginationRowModel: getPaginationRowModel(),
 })
 
-function handlePageSizeChange(e: Event) {
-  const target = e.target as HTMLSelectElement | HTMLInputElement | null
-  if (!target) return
-  table.setPageSize(Number(target.value))
-}
-
 const modalCreate = ref()
 const modalEdit = ref()
 
+const errorCategory = ref<{ [key: string]: string[] } | null>(null)
+const categoryForm = reactive({
+  _id: '',
+  name: '',
+})
+
 function handleEdit(id: string) {
-  modalEdit.value.showModal()
   console.log(id)
+
+  const selected = categories.value.find((category) => category._id === id)
+  if (selected) {
+    categoryForm.name = selected.name
+    categoryForm._id = selected._id
+  }
+
+  modalEdit.value.showModal()
+}
+
+function update() {
+  const payload: { _id: string; name: string } = {
+    _id: categoryForm?._id || '', // assign the correct id here
+    name: categoryForm.name,
+  }
+  console.log(payload)
+  updateCategory(payload)
+    .then((res) => {
+      Swal.fire({
+        title: 'Good job!',
+        text: res.data.success,
+        icon: 'success',
+      })
+
+      getData()
+      modalEdit.value.close()
+    })
+    .catch((res) => {
+      console.log(res.response)
+      errorCategory.value = res.response.data.error
+    })
 }
 
 function handleDelete(id: string) {
-  console.log(id)
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteCategory(id)
+        .then((res) => {
+          Swal.fire({
+            title: 'Deleted!',
+            text: res.data.success,
+            icon: 'success',
+          })
+
+          getData()
+        })
+        .catch((res) => {
+          console.log(res.response)
+        })
+    }
+  })
+}
+
+const createForm = reactive({
+  name: '',
+})
+function store() {
+  // Implementation for creating a new category
+  createCategory(createForm)
+    .then((res) => {
+      Swal.fire({
+        title: 'Success!',
+        text: res.data.success,
+        icon: 'success',
+      })
+      getData()
+      modalCreate.value.close()
+      createForm.name = '' // Reset form
+    })
+    .catch((res) => {
+      console.log(res.response)
+      errorCategory.value = res.response.data.error
+    })
 }
 </script>
 
 <template>
   <DashboardAdminLayout>
     <section class="p-4 space-y-5">
-      <div class="">
-        <div>
-          <h1 class="text-2xl font-semibold">Categories</h1>
-          <p class="font-light text-lg">Manage Categories</p>
-        </div>
-      </div>
-
-      <div class="flex md:justify-between gap-3 items-center w-full flex-col md:flex-row">
+      <!-- header -->
+      <HeaderDashboard title="Categories" :modal="modalCreate">
         <div class="w-full md:w-auto">
           <label class="input">
             <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -156,92 +231,51 @@ function handleDelete(id: string) {
             <input type="search" required placeholder="Search" v-model="globalFilter" />
           </label>
         </div>
-        <div>
-          <button class="btn btn-success btn-md" @click="modalCreate?.showModal()">
-            Create new Category
-          </button>
-        </div>
-      </div>
-
+      </HeaderDashboard>
       <!-- table data -->
-      <div class="overflow-x-auto">
-        <table class="table table-zebra">
-          <thead>
-            <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-              <th v-for="header in headerGroup.headers" :key="header.id" :colSpan="header.colSpan">
-                <button
-                  v-if="header.column.getCanSort()"
-                  class="flex items-center gap-1 font-semibold"
-                  @click="header.column.toggleSorting()"
-                >
-                  <FlexRender
-                    :render="header.column.columnDef.header"
-                    :props="header.getContext()"
-                  />
-
-                  <!-- SORT ICON -->
-                  <span class="text-sm">
-                    <template v-if="header.column.getIsSorted() === 'asc'"
-                      ><SortAsc :size="15" class="cursor-pointer"
-                    /></template>
-                    <template v-else-if="header.column.getIsSorted() === 'desc'">
-                      <SortDesc :size="15" class="cursor-pointer" />
-                    </template>
-                    <template v-else> <ArrowUpDown :size="15" class="cursor-pointer" /> </template>
-                  </span>
-                </button>
-
-                <!-- HEADER TANPA SORT -->
-                <FlexRender
-                  v-else
-                  :render="header.column.columnDef.header"
-                  :props="header.getContext()"
-                />
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr v-for="row in table.getRowModel().rows" :key="row.id">
-              <td v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="flex justify-between items-center p-3">
-          <div class="w-full">
-            <select
-              class="input select select-xs w-28"
-              :value="table.getState().pagination.pageSize"
-              @change="handlePageSizeChange"
-            >
-              <option :key="pageSize" :value="pageSize" v-for="pageSize in pageSizes">
-                Show {{ pageSize }}
-              </option>
-            </select>
-          </div>
-          <div class="w-sm">
-            <div class="join grid grid-cols-2">
-              <button
-                class="join-item btn btn-outline btn-sm"
-                @click="() => table.previousPage()"
-                :disabled="!table.getCanPreviousPage()"
-              >
-                Previous
-              </button>
-              <button
-                class="join-item btn btn-outline btn-sm"
-                @click="() => table.nextPage()"
-                :disabled="!table.getCanNextPage()"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <TableData :table="table" :page-sizes="pageSizes" />
     </section>
   </DashboardAdminLayout>
+
+  <!-- modal edit -->
+  <ModalDialog ref="modalEdit" for="Edit" title="Category">
+    <form @submit.prevent="update" class="space-y-4 mt-4">
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Name</legend>
+        <input
+          v-model="categoryForm.name"
+          type="text"
+          class="input w-full"
+          placeholder="Medicine name"
+        />
+        <AlertComponent v-if="errorCategory?.name">
+          {{ errorCategory.name[0] }}
+        </AlertComponent>
+      </fieldset>
+      <div class="mt-3 text-right">
+        <button type="submit" class="btn btn-info btn-sm">Update</button>
+      </div>
+    </form>
+  </ModalDialog>
+
+  <!-- modal create -->
+  <ModalDialog ref="modalCreate" for="Create" title="Category">
+    <form @submit.prevent="store" class="space-y-4 mt-4">
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Name</legend>
+        <input
+          v-model="createForm.name"
+          type="text"
+          class="input w-full"
+          placeholder="Category name"
+        />
+        <AlertComponent v-if="errorCategory?.name">
+          {{ errorCategory.name[0] }}
+        </AlertComponent>
+      </fieldset>
+      <div class="mt-3 text-right">
+        <button type="submit" class="btn btn-success btn-sm">Create</button>
+      </div>
+    </form>
+  </ModalDialog>
 </template>
