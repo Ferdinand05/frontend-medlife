@@ -32,6 +32,16 @@ const router = createRouter({
     ...userRoutes,
     ...adminRoutes,
   ],
+  scrollBehavior(to) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+      }
+    }
+
+    return { top: 0 }
+  },
 })
 
 router.afterEach((to) => {
