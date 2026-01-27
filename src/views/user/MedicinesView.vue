@@ -224,7 +224,7 @@ function handleEdit(id: string) {
   editForm.value = {
     _id: medicine._id,
     name: medicine.name,
-    quantity: medicine.quantity,
+    quantity: medicine.quantity ?? 0,
     unit: medicine.unit,
     note: medicine.note,
     expireDate: medicine.expireDate
