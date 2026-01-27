@@ -1,7 +1,6 @@
 import CategoryView from '@/views/admin/CategoryView.vue'
 import DashboardView from '@/views/admin/DashboardView.vue'
 import MedicinesView from '@/views/admin/MedicinesView.vue'
-import SettingsView from '@/views/admin/SettingsView.vue'
 import UsersView from '@/views/admin/UsersView.vue'
 import type { RouteRecordRaw } from 'vue-router'
 
@@ -42,16 +41,6 @@ const adminRoutes: RouteRecordRaw[] = [
     name: 'admin.medicines',
     meta: {
       title: 'List Medicines',
-      requireAuth: true,
-      roles: ['admin'],
-    },
-  },
-  {
-    path: '/admin/settings',
-    component: SettingsView,
-    name: 'admin.settings',
-    meta: {
-      title: 'Admin Setting',
       requireAuth: true,
       roles: ['admin'],
     },
