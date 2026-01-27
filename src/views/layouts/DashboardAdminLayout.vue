@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { NavbarItem } from '@/types'
-import { Bookmark, Gauge, Pill, Settings, Users } from 'lucide-vue-next'
+import { Bookmark, Gauge, Pill, Users } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 
 const navbarItems: NavbarItem[] = [
@@ -23,11 +23,6 @@ const navbarItems: NavbarItem[] = [
     href: '/admin/categories',
     label: 'Category Medicines',
     icon: Bookmark,
-  },
-  {
-    href: '/admin/settings',
-    label: 'Settings',
-    icon: Settings,
   },
 ]
 </script>
