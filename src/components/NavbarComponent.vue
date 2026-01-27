@@ -31,8 +31,8 @@ const authStore = useAuthStore()
           class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
         >
           <li><RouterLink to="/">Home</RouterLink></li>
-          <li><a>About</a></li>
-          <li><a>How it works</a></li>
+          <li><RouterLink :to="{ path: '/', hash: '#about' }">About</RouterLink></li>
+          <li><RouterLink :to="{ path: '/', hash: '#how' }">How it works</RouterLink></li>
         </ul>
       </div>
       <a href="/" class="btn btn-ghost text-xl font-bold text-green-400 tracking-wide">MEDLIFE</a>
@@ -40,8 +40,8 @@ const authStore = useAuthStore()
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
         <li><RouterLink to="/">Home</RouterLink></li>
-        <li><a>About</a></li>
-        <li><a>How it works</a></li>
+        <li><RouterLink :to="{ path: '/', hash: '#about' }">About</RouterLink></li>
+        <li><RouterLink :to="{ path: '/', hash: '#how' }">How it works</RouterLink></li>
       </ul>
     </div>
     <div class="navbar-end">
