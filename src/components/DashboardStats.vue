@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Component } from 'vue'
+import { markRaw, type Component } from 'vue'
 
 export interface IStatDashboard {
   name: string
@@ -11,6 +11,11 @@ export interface IStatDashboard {
 const props = defineProps<{
   stats: IStatDashboard[]
 }>()
+
+props.stats.forEach(stat => {
+  stat.icon = markRaw(stat.icon)
+})
+
 </script>
 
 <template>
@@ -32,7 +37,7 @@ const props = defineProps<{
           <component :is="stat.icon" />
         </div>
       </div>
-      <h2 class="text-center text-2xl md:text-4xl font-bold">{{ stat.count }}</h2>
+      <h2 class="text-center text-2xl md:text-4xl font-bold">{{ stat.count ?? '-' }}</h2>
     </div>
   </section>
 </template>

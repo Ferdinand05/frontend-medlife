@@ -56,9 +56,9 @@ const authStore = useAuthStore()
           tabindex="-1"
           class="dropdown-content menu bg-gray-100 rounded-box z-1 w-52 p-2 shadow-sm"
         >
-          <li><RouterLink :to="{ name: 'user.dashboard' }">Dashboard</RouterLink></li>
+          <li><RouterLink :to="{ name: 'user.dashboard' }">Dashboard User</RouterLink></li>
           <li v-if="authStore.user?.role == 'admin'">
-            <RouterLink :to="{ name: 'admin.dashboard' }">Dashboard Admin</RouterLink>
+            <RouterLink :to="{ name: 'admin.dashboard' }">Admin</RouterLink>
           </li>
           <li><RouterLink :to="{ name: 'user.settings' }">Settings</RouterLink></li>
           <li><a class="bg-red-100" @click="authStore.logout">Logout</a></li>
